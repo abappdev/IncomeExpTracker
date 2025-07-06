@@ -10,57 +10,9 @@ import SwiftUI
 struct HomeView: View {
 
 	@State private var showTransactionAddView: Bool = false
+	@State private var transactionToEdit: TransactionModel?
 
-	@State private var transactions: [TransactionModel] = [
-		TransactionModel(
-			title: "Coffee",
-			amount: 100,
-			date: Date(),
-			type: .expense
-		),
-		TransactionModel(
-			title: "Salary",
-			amount: 11100,
-			date: Date(),
-			type: .income
-		),
-		TransactionModel(
-			title: "Coffee",
-			amount: 100,
-			date: Date(),
-			type: .expense
-		),
-		TransactionModel(
-			title: "Salary",
-			amount: 11100,
-			date: Date(),
-			type: .income
-		),
-		TransactionModel(
-			title: "Coffee",
-			amount: 100,
-			date: Date(),
-			type: .expense
-		),
-		TransactionModel(
-			title: "Salary",
-			amount: 11100,
-			date: Date(),
-			type: .income
-		),
-		TransactionModel(
-			title: "Coffee",
-			amount: 100,
-			date: Date(),
-			type: .expense
-		),
-		TransactionModel(
-			title: "Salary",
-			amount: 11100,
-			date: Date(),
-			type: .income
-		),
-	]
+	@State private var transactions: [TransactionModel] = []
 
 	fileprivate func BalanceView() -> some View {
 		ZStack {
@@ -124,7 +76,15 @@ struct HomeView: View {
 					// Section 1: Transactions
 					Section {
 						ForEach(transactions) { transaction in
-							TransactionItem(transaction: transaction)
+							Button(
+								action: {
+									transactionToEdit = transaction
+									showTransactionAddView = true
+								},
+								label: {
+									TransactionItem(transaction: transaction)
+								}
+							)
 						}
 					}
 				}
@@ -136,6 +96,7 @@ struct HomeView: View {
 					Button(
 						action: {
 							showTransactionAddView = true
+							transactionToEdit = nil
 						},
 						label: {
 							Text("Add New Transaction")
@@ -156,11 +117,14 @@ struct HomeView: View {
 				ToolbarItem(
 					placement: .topBarTrailing,
 					content: {
-						Button(action: {
-							print("Settings")
-						}, label: {
-							Image(systemName: "gearshape.fill")
-						})
+						Button(
+							action: {
+								print("Settings")
+							},
+							label: {
+								Image(systemName: "gearshape.fill")
+							}
+						)
 
 					}
 				)
@@ -168,7 +132,10 @@ struct HomeView: View {
 			.sheet(
 				isPresented: $showTransactionAddView,
 				content: {
-					AddTransactionPresentationDetent().presentationDetents([
+					AddTransactionPresentationDetent(
+						transactions: $transactions, transactionToEdit: transactionToEdit
+					)
+					.presentationDetents([
 						.fraction(0.35)
 					]
 					)
