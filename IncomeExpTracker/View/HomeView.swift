@@ -14,51 +14,85 @@ struct HomeView: View {
 
 	@State private var transactions: [TransactionModel] = []
 
-	fileprivate func BalanceView() -> some View {
-		ZStack {
-			RoundedRectangle(cornerRadius: 10)
-				.fill(.primaryGreen)
-			VStack(alignment: .leading) {
-				HStack {
-					Text("Balance".uppercased())
-						.font(.caption)
-						.foregroundStyle(.white)
-					Spacer()
-				}
-				.padding(.top)
-
-				Text("₹\(1000)")
-					.font(.system(size: 45, weight: .light))
-					.foregroundStyle(.white)
-				Spacer()
-				HStack {
-					Spacer()
-					Image(
-						systemName: "arrow.up.forward"
-					)
-					VStack {
-						Text("Expense")
-							.font(.system(size: 15, weight: .semibold))
-						Text("₹1000")
-					}
-					Spacer()
-					Image(
-						systemName: "arrow.down.forward"
-					)
-					VStack {
-						Text("Income")
-							.font(.system(size: 15, weight: .semibold))
-						Text("₹1000")
-					}
-					Spacer()
-
-				}
-
-			}.padding(.all)
-
+	var income: Double {
+		var sumIncome: Double = 0.0
+		for transaction in transactions {
+			if transaction.type == .income {
+				sumIncome += transaction.amount
+			}
 		}
-		.frame(height: 200)
-		.padding(.horizontal)
+		return sumIncome
+	}
+
+	var expense: Double {
+		var sumExpense: Double = 0.0
+		for transaction in transactions {
+			if transaction.type == .expense {
+				sumExpense += transaction.amount
+			}
+		}
+		return sumExpense
+	}
+
+	fileprivate func BalanceView() -> some View {
+	    ZStack {
+	        RoundedRectangle(cornerRadius: 20, style: .continuous)
+	            .fill(Color(.systemBackground))
+	            .shadow(color: Color(.black).opacity(0.08), radius: 12, x: 0, y: 6)
+
+	        VStack(alignment: .leading, spacing: 20) {
+	            HStack {
+	                Text("BALANCE")
+	                    .font(.caption.weight(.medium))
+	                    .foregroundStyle(Color.secondary)
+	                Spacer()
+	                Image(systemName: "creditcard")
+	                    .font(.title3)
+	                    .foregroundStyle(Color.secondary.opacity(0.3))
+	            }
+	            Text("₹\(String(format: "%.2f", income - expense))")
+	                .font(.system(size: 40, weight: .semibold, design: .rounded))
+	                .foregroundStyle(Color.primary)
+	            HStack(spacing: 24) {
+	                HStack(spacing: 8) {
+	                    Circle()
+	                        .fill(Color.red.opacity(0.12))
+	                        .frame(width: 32, height: 32)
+	                        .overlay(Image(systemName: "arrow.up.forward")
+	                            .font(.system(size: 16, weight: .semibold))
+	                            .foregroundStyle(Color.red))
+	                    VStack(alignment: .leading, spacing: 2) {
+	                        Text("Expense")
+	                            .font(.caption2.weight(.medium))
+	                            .foregroundStyle(Color.secondary)
+	                        Text("₹\(String(format: "%.2f", expense))")
+	                            .font(.subheadline.weight(.semibold))
+	                            .foregroundStyle(Color.primary)
+	                    }
+	                }
+	                HStack(spacing: 8) {
+	                    Circle()
+	                        .fill(Color.green.opacity(0.12))
+	                        .frame(width: 32, height: 32)
+	                        .overlay(Image(systemName: "arrow.down.forward")
+	                            .font(.system(size: 16, weight: .semibold))
+	                            .foregroundStyle(Color.green))
+	                    VStack(alignment: .leading, spacing: 2) {
+	                        Text("Income")
+	                            .font(.caption2.weight(.medium))
+	                            .foregroundStyle(Color.secondary)
+	                        Text("₹\(String(format: "%.2f", income))")
+	                            .font(.subheadline.weight(.semibold))
+	                            .foregroundStyle(Color.primary)
+	                    }
+	                }
+	                Spacer()
+	            }
+	        }
+	        .padding(24)
+	    }
+	    .frame(height: 180)
+	    .padding(.horizontal, 4)
 	}
 
 	var body: some View {
@@ -72,7 +106,9 @@ struct HomeView: View {
 							.listRowSeparator(.hidden)  // Optional: cleaner look
 							.listRowInsets(EdgeInsets())  // Optional: edge-to-edge
 					}
-
+					Section {
+						Spacer()
+					}
 					// Section 1: Transactions
 					Section {
 						ForEach(transactions) { transaction in
@@ -133,7 +169,8 @@ struct HomeView: View {
 				isPresented: $showTransactionAddView,
 				content: {
 					AddTransactionPresentationDetent(
-						transactions: $transactions, transactionToEdit: transactionToEdit
+						transactions: $transactions,
+						transactionToEdit: transactionToEdit
 					)
 					.presentationDetents([
 						.fraction(0.35)
