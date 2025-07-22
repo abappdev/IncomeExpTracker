@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct AddTransactionPresentationDetent: View {
+	
 	@State private var amountEntered = 0.0
 	@State private var selectedTransactionType: TransactionTypeModel = .expense
 	@State private var transactionInfo = ""
